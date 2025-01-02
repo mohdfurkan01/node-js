@@ -2,11 +2,11 @@ const fs = require("fs");
 
 //console.log("it is a built in module", fs);
 
-//* syncronous way to create file
+//* syncronous way which means blocking req operation
 //fs.writeFileSync("./test.txt", "My custom file content1");
 //isme jo bhi content likha jayega wo bar bar override hoga means purana delete ho jayega aur nyaa add ho jayega
 
-//* Asycnronous way
+//* Asycnronous way which means Non-blocking req operation
 // fs.writeFile(
 //   "./test2.text",
 //   "async content to see the changes in file",
