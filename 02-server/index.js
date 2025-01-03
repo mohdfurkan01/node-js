@@ -71,7 +71,7 @@ const myServer = http.createServer((req, res) => {
         if (req.method === "GET") res.end("This is a signup form");
         else if (req.method === "POST") {
           //DB query
-          res.end("Success");
+          res.end("Successfully submited the form Data");
         }
         break;
 
