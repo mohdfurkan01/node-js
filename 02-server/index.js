@@ -28,7 +28,7 @@ const myServer = http.createServer((req, res) => {
   //const log = `${Date.now()}: ${req.url} New Req Received\n`;
   //assign it to a variable for reusability and code easier to understand
   const formattedDateTime = getFormattedDateTime();
-  const log = `${formattedDateTime}: ${req.url} New Req Received\n`;
+  const log = `${formattedDateTime}: ${req.url} ${req.method} New Req Received\n`;
 
   //we can call it directly both are valid
   //const log = `${getFormattedDateTime()}: ${req.url} New Req Received\n`;
@@ -45,9 +45,12 @@ const myServer = http.createServer((req, res) => {
     // switch (req.url) {
     switch (myUrl.pathname) {
       case "/":
-        res.end(
-          `<h1 style="color:green; text-align:center;">This is my Home Page</h1>`
-        );
+        if (req.method === "GET") {
+          res.end(
+            `<h1 style="color:green; text-align:center;">This is my Home Page</h1>`
+          );
+        }
+
         break;
       case "/about":
         const username = myUrl.query.myname;
@@ -63,6 +66,13 @@ const myServer = http.createServer((req, res) => {
         break;
       case "/login":
         res.end("This is my  Login page ");
+        break;
+      case "/signup":
+        if (req.method === "GET") res.end("This is a signup form");
+        else if (req.method === "POST") {
+          //DB query
+          res.end("Success");
+        }
         break;
 
       default:

@@ -21,3 +21,5 @@
 04/01/2025 01:33 AM: /about New Req Received
 04/01/2025 01:34 AM: /about?myname=hamza New Req Received
 04/01/2025 01:35 AM: /about?myname=hamza&id=99&address=bareilly&country=india New Req Received
+04/01/2025 02:20 AM: / GET New Req Received
+04/01/2025 02:26 AM: /signup GET New Req Received
