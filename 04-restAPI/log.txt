@@ -1,0 +1,16 @@
+1736015303256: GET: /api/users
+1736015332526: GET: /api/users/998
+1736015339435: GET: /api/users/993
+1736015401609: POST: /api/users
+1736015422663: PATCH: /api/users/1002
+1736015472671: DELETE: /api/users/991
+1736015574941: ::1 GET: /api/users
+1736016316720: ::1 GET: /api/users
+1736112929583: ::1 GET: /api/users
+1736113386297: ::1 GET: /api/users
+1736113487303: ::1 GET: /api/users
+1736113576307: ::1 GET: /api/users
+1736113817691: ::1 GET: /api/users
+1736113916748: ::1 GET: /api/users
+1736197899253: ::1 POST: /api/users
+1736198244832: ::1 POST: /api/users

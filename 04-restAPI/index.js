@@ -8,6 +8,32 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 //middleware
 app.use(express.urlencoded({ extended: false }));
+//app.use(express.json({ extended: false }));
+
+//custom middleware
+app.use((req, res, next) => {
+  fs.appendFile(
+    "log.txt",
+    `${Date.now()}: ${req.ip} ${req.method}: ${req.path}\n`,
+    (err, data) => {
+      next(); //next middleware must be called
+    }
+  );
+});
+
+//middleware1 ki req body m change kiya ab har kahi access hoga
+app.use((req, res, next) => {
+  console.log("I am middleware1");
+  req.myUser = "ahsan";
+  next();
+});
+
+//yaha bhi access hoga myUser ka so we can modify the req
+app.use((req, res, next) => {
+  console.log("I am middleware2", req.myUser);
+  req.myUser = "ahsan";
+  next();
+});
 
 //routes => http://localhost:8000/users
 app.get("/users", (req, res) => {
@@ -19,8 +45,14 @@ app.get("/users", (req, res) => {
 });
 
 //http://localhost:8000/api/users
+
 //REST API
 app.get("/api/users", (req, res) => {
+  // Content-Type ye ek built in header h
+  //! custom header
+  //and always add X to a custom header bcoz it is the convention method and a good practice and others will also get it ki ye custom header h
+  res.setHeader("X-myName", "furkan"); //ye postman k header m dikhtah
+  console.log(req.headers); //iske liye postman s req bhejna h then console m dikhega
   return res.json(users);
 });
 
@@ -105,9 +137,19 @@ app
 app.post("/api/users", (req, res) => {
   const body = req.body;
   //console.log(body);
+  if (
+    !body ||
+    !body.first_name ||
+    !body.last_name ||
+    !body.email ||
+    !body.gender ||
+    !body.job_title
+  ) {
+    return res.status(400).json({ msg: "All fields are required" });
+  }
   users.push({ ...body, id: users.length + 1 });
   fs.writeFile("./mydata.json", JSON.stringify(users), (err, data) => {
-    return res.json({ status: "success", id: users.length });
+    return res.status(201).json({ status: "success", id: users.length });
   });
 });
 
