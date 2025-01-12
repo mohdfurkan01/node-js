@@ -1,0 +1,5 @@
+1736451987279:::1 GET: /api/users
+1736452040422:::1 GET: /api/users
+1736452112273:::1 POST: /api/users
+1736452168864:::1 GET: /api/users/678028104bd0c444fdd1614d
+1736452243038:::1 DELETE: /api/users/677eb6102dd2cbe6f6ab87ce
