@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Users | Admin</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <%- include('../partials/header') %>
+
+    <div class="container">
+      <div class="admin-header">
+        <h1><i class="fas fa-user-cog"></i> Manage Users</h1>
+        <p>Total: <%= users.length %> users</p>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach((user, index) => { %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= user.name %></td>
+              <td><%= user.email %></td>
+              <td>
+                <span
+                  class="role-badge <%= user.role === 'ADMIN' ? 'admin' : 'normal' %>"
+                >
+                  <%= user.role %>
+                </span>
+              </td>
+              <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+              <td>
+                <% if (user.role !== 'ADMIN') { %>
+                <button
+                  class="btn small-btn make-admin-btn"
+                  data-user-id="<%= user._id %>"
+                  data-user-name="<%= user.name || user.email %>"
+                >
+                  Make Admin
+                </button>
+                <% } %>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 2rem">
+        <a href="/admin" class="btn">
+          <i class="fas fa-arrow-left"></i> Back to Admin Panel
+        </a>
+      </div>
+    </div>
+
+    <script>
+      document.querySelectorAll(".make-admin-btn").forEach((button) => {
+        button.addEventListener("click", function () {
+          const userId = this.getAttribute("data-user-id");
+          const userName = this.getAttribute("data-user-name");
+
+          if (
+            confirm(`Are you sure you want to make "${userName}" an Admin?`)
+          ) {
+            // Show loading state
+            const originalText = this.innerHTML;
+            this.innerHTML =
+              '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            this.disabled = true;
+
+            fetch(`/admin/users/${userId}/make-admin`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+              .then((response) => {
+                // Check if response is JSON
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                  throw new Error("Server returned non-JSON response");
+                }
+                return response.json();
+              })
+              .then((data) => {
+                if (data.success) {
+                  alert(`Success! ${userName} is now an Admin.`);
+                  location.reload();
+                } else {
+                  alert("Error: " + data.message);
+                  // Reset button
+                  this.innerHTML = originalText;
+                  this.disabled = false;
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                alert("Something went wrong. Please try again.");
+                // Reset button
+                this.innerHTML = originalText;
+                this.disabled = false;
+              });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

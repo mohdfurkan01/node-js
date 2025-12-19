@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up | URL Shortener</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <%- include('../partials/header') %>
+
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h1><i class="fas fa-user-plus"></i> Create Account</h1>
+          <p>Join thousands of users shortening URLs</p>
+        </div>
+
+        <form action="/user" method="post" class="auth-form" id="signupForm">
+          <% if (locals.error) { %>
+          <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i> <%= error %>
+          </div>
+          <% } %>
+
+          <div class="form-group">
+            <label for="name"> <i class="fas fa-user"></i> Full Name </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="John Doe"
+              required
+              autocomplete="name"
+              autofocus
+              value="<%= typeof name !== 'undefined' ? name : '' %>"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">
+              <i class="fas fa-envelope"></i> Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              required
+              autocomplete="email"
+              value="<%= typeof email !== 'undefined' ? email : '' %>"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password"> <i class="fas fa-lock"></i> Password </label>
+            <div class="password-input">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Create a strong password"
+                required
+                autocomplete="new-password"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                onclick="togglePassword()"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+            <div class="password-strength">
+              <div class="strength-bar">
+                <div class="strength-level" id="strengthLevel"></div>
+              </div>
+              <small id="strengthText">Password strength</small>
+            </div>
+          </div>
+
+          <!-- In your signup.ejs form -->
+          <div class="form-options">
+            <label class="checkbox-label">
+              <input type="checkbox" name="terms" required />
+              <span>
+                I agree to the
+                <a href="javascript:void(0)" onclick="showTerms()"
+                  >Terms of Service</a
+                >
+                and
+                <a href="javascript:void(0)" onclick="showPrivacy()"
+                  >Privacy Policy</a
+                >
+              </span>
+            </label>
+          </div>
+
+          <!-- Add modals at bottom of body -->
+          <div id="termsModal" class="modal" style="display: none">
+            <div class="modal-content">
+              <h2>Terms of Service</h2>
+              <div class="modal-body">
+                <h3>1. Acceptable Use</h3>
+                <p>You agree not to use this service for:</p>
+                <ul>
+                  <li>Spam or malicious links</li>
+                  <li>Illegal activities</li>
+                  <li>Phishing or fraud</li>
+                </ul>
+
+                <h3>2. URL Content</h3>
+                <p>You are responsible for the URLs you shorten.</p>
+
+                <h3>3. Account Termination</h3>
+                <p>We may suspend accounts violating these terms.</p>
+              </div>
+              <button onclick="closeModal('termsModal')">Close</button>
+            </div>
+          </div>
+
+          <div id="privacyModal" class="modal" style="display: none">
+            <div class="modal-content">
+              <h2>Privacy Policy</h2>
+              <div class="modal-body">
+                <h3>What We Collect</h3>
+                <ul>
+                  <li>Email address for account creation</li>
+                  <li>URLs you shorten</li>
+                  <li>Click analytics (anonymous)</li>
+                </ul>
+
+                <h3>How We Use Data</h3>
+                <ul>
+                  <li>Provide URL shortening service</li>
+                  <li>Show click statistics</li>
+                  <li>Improve service quality</li>
+                </ul>
+              </div>
+              <button onclick="closeModal('privacyModal')">Close</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn auth-btn">
+            <i class="fas fa-user-plus"></i> Create Account
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <p>Already have an account? <a href="/login">Login here</a></p>
+          <a href="/" class="back-home">
+            <i class="fas fa-arrow-left"></i> Back to Home
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // EMAIL VALIDATION ONLY
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", function (event) {
+          const email = document.getElementById("email").value.trim();
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+          if (!emailRegex.test(email)) {
+            alert(
+              "Please enter a valid email address (example: user@domain.com)"
+            );
+            event.preventDefault();
+            return false;
+          }
+        });
+
+      function togglePassword() {
+        const passwordInput = document.getElementById("password");
+        const toggleIcon = document.querySelector(".toggle-password i");
+
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          toggleIcon.className = "fas fa-eye-slash";
+        } else {
+          passwordInput.type = "password";
+          toggleIcon.className = "fas fa-eye";
+        }
+      }
+
+      // Password strength checker
+      const passwordInput = document.getElementById("password");
+      const strengthLevel = document.getElementById("strengthLevel");
+      const strengthText = document.getElementById("strengthText");
+
+      passwordInput.addEventListener("input", function () {
+        const password = this.value;
+        let strength = 0;
+
+        // Check password criteria
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        // Update strength indicator
+        const percent = strength * 25;
+        strengthLevel.style.width = percent + "%";
+
+        // Update color and text
+        if (strength <= 1) {
+          strengthLevel.style.background = "#ef4444";
+          strengthText.textContent = "Weak password";
+        } else if (strength <= 2) {
+          strengthLevel.style.background = "#f59e0b";
+          strengthText.textContent = "Fair password";
+        } else if (strength <= 3) {
+          strengthLevel.style.background = "#10b981";
+          strengthText.textContent = "Good password";
+        } else {
+          strengthLevel.style.background = "#10b981";
+          strengthText.textContent = "Strong password!";
+        }
+      });
+      //============================================================
+
+      function showTerms() {
+        document.getElementById("termsModal").style.display = "flex";
+        document.body.style.overflow = "hidden"; // Prevent background scroll
+      }
+
+      function showPrivacy() {
+        document.getElementById("privacyModal").style.display = "flex";
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+        document.body.style.overflow = "auto"; // Restore scroll
+      }
+
+      // Close when clicking outside modal
+      window.addEventListener("click", function (event) {
+        if (event.target.classList.contains("modal")) {
+          event.target.style.display = "none";
+          document.body.style.overflow = "auto";
+        }
+      });
+
+      // Close with Escape key
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          document.querySelectorAll(".modal").forEach((modal) => {
+            modal.style.display = "none";
+          });
+          document.body.style.overflow = "auto";
+        }
+      });
+    </script>
+  </body>
+</html>

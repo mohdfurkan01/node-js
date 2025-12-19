@@ -1,23 +1,323 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
-    </style>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home Page</title>
+    <link
+      rel="icon"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/svgs/solid/link.svg"
+      type="image/svg+xml"
+    />
+    <title>URL Shortener | Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <h1>URL Shortner</h1>
-    <div>
-      <form method="post" action="/url">
-        <label for="">Enter Your Original URL</label>
-        <input name="url" type="text" placeholder="https://example.com" />
-        <button type="submit">Generate</button>
-      </form>
+    <!-- Include Header -->
+    <%- include('partials/header') %>
+
+    <div class="container">
+      <% if (locals.user) { %>
+      <!-- User Dashboard -->
+      <div class="welcome-banner">
+        <h2>Welcome, <%= user.name || user.email.split('@')[0] %>!</h2>
+        <p>
+          You are logged in as <span class="role-badge"><%= user.role %></span>
+        </p>
+      </div>
+
+      <!-- URL Generator Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2><i class="fas fa-magic"></i> Generate Short URL</h2>
+          <a href="/" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+          </a>
+        </div>
+
+        <form method="post" action="/url" id="urlForm">
+          <div class="form-group">
+            <label for="url">Enter Your Original URL</label>
+            <div class="input-group">
+              <input
+                type="url"
+                id="url"
+                name="url"
+                placeholder="https://example.com/very-long-url-path"
+                required
+                autocomplete="off"
+              />
+              <button type="submit" class="btn">
+                <i class="fas fa-bolt"></i> Generate
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <% if (locals.id) { %>
+        <div class="result-card">
+          <div class="success-header">
+            <i class="fas fa-check-circle"></i>
+            <h3>URL Generated Successfully!</h3>
+          </div>
+          <div class="result-content">
+            <div class="url-display">
+              <span class="generated-url" id="shortUrl"
+                >http://localhost:8082/<%= id %></span
+              >
+              <div class="action-buttons">
+                <button class="copy-btn" onclick="copyToClipboard()">
+                  <i class="far fa-copy"></i> Copy
+                </button>
+                <a href="/" class="btn secondary-btn">
+                  <i class="fas fa-home"></i> Go to Dashboard
+                </a>
+              </div>
+            </div>
+            <p class="info-text">
+              <i class="fas fa-info-circle"></i> This link will redirect to your
+              original URL
+            </p>
+          </div>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- URLs Table Section (Only if there are URLs) -->
+      <% if (locals.urls && urls.length > 0) { %>
+      <div class="urls-section">
+        <h2><i class="fas fa-history"></i> Your Shortened URLs</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Short URL</th>
+                <th>Original URL</th>
+                <th>Clicks</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% urls.forEach((url, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+
+                <!-- NEW: Short URL Column with Copy -->
+                <td>
+                  <div class="short-url-container">
+                    <span
+                      class="short-url"
+                      onclick="copyShortUrl('<%= url.shortId %>')"
+                      title="Click to copy"
+                    >
+                      http://localhost:8082/<%= url.shortId %>
+                    </span>
+                    <button
+                      class="copy-icon-btn"
+                      onclick="copyShortUrl('<%= url.shortId %>')"
+                      title="Copy to clipboard"
+                    >
+                      <i class="far fa-copy"></i>
+                    </button>
+                  </div>
+                </td>
+
+                <td class="redirect-url" title="<%= url.redirectURL %>">
+                  <%= url.redirectURL %>
+                </td>
+                <td>
+                  <span
+                    class="clicks <%= url.visitedHistory.length > 0 ? 'success' : 'low' %>"
+                  >
+                    <i class="fas fa-chart-line"></i> <%=
+                    url.visitedHistory.length %>
+                  </span>
+                </td>
+                <td>
+                  <a
+                    href="/url/analytics/<%= url.shortId %>"
+                    class="btn small-btn"
+                  >
+                    <i class="fas fa-chart-bar"></i> Analytics
+                  </a>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <% } else { %>
+      <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <p>No URLs generated yet. Create your first short URL above!</p>
+      </div>
+      <% } %> <% } else { %>
+
+      <!-- Guest Homepage -->
+      <div class="hero-section">
+        <div class="hero-content">
+          <h1>Shorten URLs, Track Clicks, Grow Your Audience</h1>
+          <p>
+            Create custom short URLs, monitor performance with analytics, and
+            share links with confidence.
+          </p>
+          <div class="hero-buttons">
+            <a href="/signup" class="btn hero-btn">
+              <i class="fas fa-rocket"></i> Get Started Free
+            </a>
+
+            <a href="/login" class="btn hero-btn">
+              <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <!-- <a href="/login" class="btn secondary-btn">
+              <i class="fas fa-sign-in-alt"></i> Login
+            </a> -->
+          </div>
+        </div>
+        <div class="hero-image">
+          <i class="fas fa-link"></i>
+        </div>
+      </div>
+
+      <div class="features">
+        <h2>Why Choose Our URL Shortener?</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <i class="fas fa-chart-line"></i>
+            <h3>Analytics</h3>
+            <p>Track clicks, locations, and referrers</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-lock"></i>
+            <h3>Secure</h3>
+            <p>HTTPS encryption for all your links</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-bolt"></i>
+            <h3>Fast</h3>
+            <p>Instant redirection, no delays</p>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>
+          <span class="coffee-code">
+            © 2025 Coffee <i class="fas fa-coffee"></i> with Code
+            <i class="fas fa-code"></i>
+          </span>
+          <i class="fas fa-heart" style="color: #ef4444"></i>
+        </p>
+      </footer>
     </div>
+
+    <script>
+      function copyToClipboard() {
+        const shortUrl = document.getElementById("shortUrl");
+        const textToCopy = shortUrl.textContent;
+
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            const copyBtn = document.querySelector(".copy-btn");
+            const originalHTML = copyBtn.innerHTML;
+
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            copyBtn.style.background = "#10b981";
+
+            setTimeout(() => {
+              copyBtn.innerHTML = originalHTML;
+              copyBtn.style.background = "";
+            }, 2000);
+          })
+          .catch((err) => {
+            alert("Failed to copy URL. Please copy manually.");
+          });
+      }
+
+      // Copy Short URL Function==========================================================
+      function copyShortUrl(shortId) {
+        const fullUrl = `http://localhost:8082/${shortId}`;
+
+        navigator.clipboard
+          .writeText(fullUrl)
+          .then(() => {
+            // Show success feedback on the button
+            const buttons = document.querySelectorAll(".copy-icon-btn");
+            buttons.forEach((btn) => {
+              const icon = btn.querySelector("i");
+              const originalClass = icon.className;
+              const originalColor = btn.style.color;
+
+              // Change to checkmark if this button matches
+              if (btn.onclick && btn.onclick.toString().includes(shortId)) {
+                icon.className = "fas fa-check";
+                btn.style.background = "#10b981";
+                btn.style.color = "white";
+
+                // Revert after 2 seconds
+                setTimeout(() => {
+                  icon.className = originalClass;
+                  btn.style.background = "";
+                  btn.style.color = originalColor;
+                }, 2000);
+              }
+            });
+
+            // Show toast notification
+            showToast("Short URL copied to clipboard!");
+          })
+          .catch((err) => {
+            console.error("Failed to copy:", err);
+            // Fallback for older browsers
+            const textArea = document.createElement("textarea");
+            textArea.value = fullUrl;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            showToast("URL copied!");
+          });
+      }
+
+      // Toast notification function
+      function showToast(message) {
+        // Remove existing toast
+        const existingToast = document.querySelector(".toast");
+        if (existingToast) existingToast.remove();
+
+        // Create new toast
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.innerHTML = `
+    <i class="fas fa-check-circle"></i>
+    <span>${message}</span>
+  `;
+
+        document.body.appendChild(toast);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+          toast.style.animation = "slideOut 0.3s ease";
+          setTimeout(() => {
+            if (toast.parentNode) {
+              toast.parentNode.removeChild(toast);
+            }
+          }, 300);
+        }, 3000);
+      }
+    </script>
   </body>
 </html>
