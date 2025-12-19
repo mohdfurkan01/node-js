@@ -28,7 +28,7 @@ app.get("/favicon.ico", (req, res) => res.status(204).end());
 console.log(`🚀 Environment: ${process.env.NODE_ENV}`);
 console.log(`📡 Port: ${PORT}`);
 //console.log(MONGODB_URI);
-// connectMongoDb("mongodb://127.0.0.1:27017/short-url-DB")
+
 connectMongoDb(MONGODB_URI)
   .then(() => {
     console.log("MongoDb Connected");
