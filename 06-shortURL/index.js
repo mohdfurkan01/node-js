@@ -1,9 +1,11 @@
 require("dotenv").config();
+require("./cron");
 
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const { connectMongoDb } = require("./connection");
+const mongoose = require("mongoose");
 
 const {
   checkForAuthentication,
@@ -52,6 +54,12 @@ app.use(checkForAuthentication);
 app.use("/", staticRoute);
 app.use("/url", restrictTo(["NORMAL", "ADMIN"]), urlRoute);
 app.use("/user", userRoute);
+
+//for debugging
+app.get("/health", async (req, res) => {
+  await mongoose.connection.db.admin().command({ ping: 1 });
+  res.send("OK");
+});
 
 app.get("/:shortId", async (req, res) => {
   const shortId = req.params.shortId;
