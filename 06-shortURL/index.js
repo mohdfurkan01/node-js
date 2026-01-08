@@ -61,6 +61,10 @@ app.get("/health", async (req, res) => {
   res.send("OK");
 });
 
+app.get("/theme.js", (req, res) => {
+  res.sendFile(path.join(__dirname, "theme.js"));
+});
+
 app.get("/:shortId", async (req, res) => {
   const shortId = req.params.shortId;
   const entry = await URL.findOneAndUpdate(
