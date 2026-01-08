@@ -1081,3 +1081,16 @@ tbody td:first-child {
     flex-wrap: wrap;
   }
 }
+
+#theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  cursor: pointer;
+  font-size: 22px;
+}
+
+body.dark {
+  background: #121212;
+  color: #ffffff;
+}
