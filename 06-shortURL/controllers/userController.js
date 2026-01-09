@@ -186,7 +186,8 @@ async function handleForgotPassword(req, res) {
     await user.save();
 
     // Create reset URL
-    const resetUrl = `http://localhost:8082/reset-password/${resetToken}`;
+    //const resetUrl = `http://localhost:8082/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.BASE_URL}/reset-password/${resetToken}`;
 
     // Email options
     const mailOptions = {
