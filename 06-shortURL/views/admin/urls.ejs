@@ -41,7 +41,8 @@
               <td><%= index + 1 %></td>
               <td>
                 <span class="short-url">
-                  localhost:8082/<%= url.shortId %>
+                  <!-- localhost:8082/ejs formate url.shortId -->
+                  <%= `${process.env.BASE_URL}/${url.shortId}` %>
                 </span>
               </td>
               <td class="redirect-url" title="<%= url.redirectURL %>">
